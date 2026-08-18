@@ -1,36 +1,38 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AprendIA
 
-## Getting Started
+Site de estudo que gera **resumos**, **flashcards** e **questões** a partir de um assunto. A geração é feita em tempo real pelo **agente do Cursor** (`@cursor/sdk`) — o mesmo tipo de agente do chat do Cursor, acionado pelo backend.
 
-First, run the development server:
+## O que tem
+
+- Pacote completo, só resumo, só flashcards ou só questões
+- Níveis iniciante, intermediário e avançado
+- Streaming ao vivo do raciocínio e da resposta do agente
+- Flashcards com virada, teclado e marcação de “eu sei”
+- Quiz de múltipla escolha com explicação
+- Histórico no navegador
+
+## Como rodar
+
+Requisito: Node.js 22.13 ou superior.
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cp .env.example .env.local
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Preencha `CURSOR_API_KEY` com uma chave de [Cursor Dashboard → API Keys](https://cursor.com/dashboard/api).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm install
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Abra [http://localhost:3000](http://localhost:3000).
 
-## Learn More
+## Como a geração funciona
 
-To learn more about Next.js, take a look at the following resources:
+1. O navegador envia o assunto, o modo e o nível para `POST /api/generate`.
+2. O servidor cria um agente local do Cursor no diretório isolado `.agent-workspace`.
+3. O agente gera o material e entrega JSON estruturado pela ferramenta `deliver_study_content`.
+4. A interface recebe os eventos em SSE e monta o resumo, os cards e o quiz.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Sem a chave do Cursor o site abre, mas a geração fica indisponível.
