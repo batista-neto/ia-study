@@ -48,16 +48,20 @@ export function Studio() {
   const [error, setError] = useState<string | null>(null);
   const [pack, setPack] = useState<StudyPack | null>(null);
   const [tab, setTab] = useState<ResultTab>("summary");
-  const [history, setHistory] = useState<HistoryItem[]>(() => loadHistory());
+  const [history, setHistory] = useState<HistoryItem[]>([]);
   const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
+    const id = window.setTimeout(() => {
+      setHistory(loadHistory());
+    }, 0);
     fetch("/api/health")
       .then((res) => res.json())
       .then((data: { cursorConfigured?: boolean }) => {
         setConfigured(Boolean(data.cursorConfigured));
       })
       .catch(() => setConfigured(false));
+    return () => window.clearTimeout(id);
   }, []);
 
   const availableTabs = useMemo(() => {
