@@ -5,6 +5,8 @@ Site de estudo que gera **resumos**, **flashcards** e **questões** a partir de 
 ## O que tem
 
 - Pacote completo, só resumo, só flashcards ou só questões
+- Banca (Cebraspe, FCC, FGV, VUNESP e outras) com questões no estilo da prova
+- Recorte pelo trecho do edital colado
 - Níveis iniciante, intermediário e avançado
 - Streaming ao vivo do raciocínio e da resposta do agente
 - Flashcards com virada, teclado e marcação de “eu sei”
@@ -30,7 +32,7 @@ Abra [http://localhost:3000](http://localhost:3000).
 
 ## Como a geração funciona
 
-1. O navegador envia o assunto, o modo e o nível para `POST /api/generate`.
+1. O navegador envia assunto, banca, edital, modo e nível para `POST /api/generate`.
 2. O servidor cria um agente local do Cursor no diretório isolado `.agent-workspace`.
 3. O agente gera o material e entrega JSON estruturado pela ferramenta `deliver_study_content`.
 4. A interface recebe os eventos em SSE e monta o resumo, os cards e o quiz.

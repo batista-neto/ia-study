@@ -1,5 +1,6 @@
 "use client";
 
+import { getExamBoard } from "@/lib/exam";
 import type { HistoryItem } from "@/lib/types";
 
 const modeLabel = {
@@ -41,7 +42,11 @@ export function HistoryPanel({
               >
                 <p className="line-clamp-2 text-sm">{item.topic}</p>
                 <p className="mt-1 text-xs text-muted">
-                  {modeLabel[item.mode]} ·{" "}
+                  {modeLabel[item.mode]}
+                  {item.pack.banca && item.pack.banca !== "generic"
+                    ? ` · ${getExamBoard(item.pack.banca).label}`
+                    : ""}
+                  {item.pack.concurso ? ` · ${item.pack.concurso}` : ""} ·{" "}
                   {new Date(item.createdAt).toLocaleString("pt-BR")}
                 </p>
               </button>

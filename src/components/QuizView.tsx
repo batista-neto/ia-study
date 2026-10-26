@@ -44,23 +44,30 @@ export function QuizView({ questions }: { questions: QuizQuestion[] }) {
 
   const revealed = picked !== null;
   const correct = picked === question.correctIndex;
+  const certoErrado =
+    question.format === "certo-errado" || question.options.length === 2;
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between text-sm text-muted">
         <span>
-          Questão {index + 1} de {questions.length}
+          {certoErrado ? "Item" : "Questão"} {index + 1} de {questions.length}
         </span>
         <span>Acertos: {score}</span>
       </div>
       <h3 className="font-serif text-3xl tracking-tight">{question.question}</h3>
-      <div className="grid gap-2">
+      <div className={`grid gap-2 ${certoErrado ? "sm:grid-cols-2" : ""}`}>
         {question.options.map((option, optionIndex) => {
           const isCorrect = optionIndex === question.correctIndex;
           const isPicked = optionIndex === picked;
           let className = "border-line bg-ink/40 hover:border-cream/20";
           if (revealed && isCorrect) className = "border-teal bg-teal/10";
           if (revealed && isPicked && !isCorrect) className = "border-rose bg-rose/10";
+          const label = certoErrado
+            ? optionIndex === 0
+              ? "C"
+              : "E"
+            : String.fromCharCode(65 + optionIndex);
           return (
             <button
               key={`${optionIndex}-${option}`}
@@ -75,7 +82,7 @@ export function QuizView({ questions }: { questions: QuizQuestion[] }) {
               className={`rounded-2xl border px-4 py-3 text-left text-sm leading-6 transition ${className}`}
             >
               <span className="mr-3 font-mono text-xs text-muted">
-                {String.fromCharCode(65 + optionIndex)}
+                {label}
               </span>
               {option}
             </button>

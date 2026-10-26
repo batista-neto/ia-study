@@ -1,5 +1,8 @@
+import { isExamBoardId } from "./exam";
 import type {
   Flashcard,
+  GenerateRequest,
+  QuizFormat,
   QuizQuestion,
   StudyLevel,
   StudyMode,
@@ -50,7 +53,15 @@ function parseSummary(value: unknown): SummaryContent | undefined {
   const title = asString(value.title);
   const overview = asString(value.overview);
   if (!title || !overview) return undefined;
-  return { title, overview, sections, keyTakeaways };
+  const editalRaw = Array.isArray(value.editalTopics) ? value.editalTopics : [];
+  const editalTopics = editalRaw.map((item) => asString(item)).filter(Boolean);
+  return {
+    title,
+    overview,
+    sections,
+    keyTakeaways,
+    editalTopics: editalTopics.length ? editalTopics : undefined,
+  };
 }
 
 function parseFlashcards(value: unknown): Flashcard[] | undefined {
@@ -74,11 +85,19 @@ function parseQuiz(value: unknown): QuizQuestion[] | undefined {
       const options = Array.isArray(item.options)
         ? item.options.map((option) => asString(option)).filter(Boolean)
         : [];
+      const format =
+        item.format === "certo-errado" ||
+        (options.length === 2 &&
+          /^certo$/i.test(options[0] ?? "") &&
+          /^errado$/i.test(options[1] ?? ""))
+          ? "certo-errado"
+          : "multiple-choice";
       return {
         question: asString(item.question),
         options,
         correctIndex: asNumber(item.correctIndex, 0),
         explanation: asString(item.explanation),
+        format: format as QuizFormat,
       };
     })
     .filter(
@@ -96,7 +115,7 @@ const levels: StudyLevel[] = ["beginner", "intermediate", "advanced"];
 
 export function normalizeStudyPack(
   value: unknown,
-  fallback: { topic: string; mode: StudyMode; level: StudyLevel },
+  fallback: GenerateRequest,
 ): StudyPack {
   const record = isRecord(value) ? value : {};
   const mode = modes.includes(record.mode as StudyMode)
@@ -109,6 +128,12 @@ export function normalizeStudyPack(
     topic: asString(record.topic, fallback.topic) || fallback.topic,
     mode,
     level,
+    banca: isExamBoardId(record.banca) ? record.banca : fallback.banca,
+    concurso:
+      asString(record.concurso, fallback.concurso ?? "") ||
+      fallback.concurso ||
+      undefined,
+    edital: fallback.edital || undefined,
     summary: parseSummary(record.summary),
     flashcards: parseFlashcards(record.flashcards),
     quiz: parseQuiz(record.quiz),

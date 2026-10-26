@@ -11,6 +11,23 @@ export function SummaryView({ summary }: { summary: SummaryContent }) {
           {summary.overview}
         </p>
       </header>
+      {summary.editalTopics?.length ? (
+        <div>
+          <p className="text-xs uppercase tracking-[0.18em] text-gold-2">
+            Pontos do edital
+          </p>
+          <ul className="mt-3 grid gap-2 md:grid-cols-2">
+            {summary.editalTopics.map((item) => (
+              <li
+                key={item}
+                className="rounded-2xl border border-gold/25 bg-gold/8 px-4 py-3 text-sm leading-6"
+              >
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
       {summary.keyTakeaways.length ? (
         <div>
           <p className="text-xs uppercase tracking-[0.18em] text-gold-2">

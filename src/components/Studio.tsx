@@ -13,6 +13,8 @@ import {
   loadHistory,
   saveHistoryItem,
 } from "@/lib/history";
+import { getExamBoard } from "@/lib/exam";
+import type { ExamBoardId } from "@/lib/exam";
 import type {
   HistoryItem,
   StudyLevel,
@@ -40,6 +42,9 @@ export function Studio() {
   const [topic, setTopic] = useState("");
   const [mode, setMode] = useState<StudyMode>("pack");
   const [level, setLevel] = useState<StudyLevel>("intermediate");
+  const [banca, setBanca] = useState<ExamBoardId>("generic");
+  const [concurso, setConcurso] = useState("");
+  const [edital, setEdital] = useState("");
   const [configured, setConfigured] = useState<boolean | null>(null);
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState("Pronto para gerar.");
@@ -84,7 +89,7 @@ export function Studio() {
     setStatus("Conectando ao agente do Cursor...");
     try {
       await streamStudyContent(
-        { topic: topic.trim(), mode, level },
+        { topic: topic.trim(), mode, level, banca, concurso, edital },
         (event) => {
           if (event.type === "status") setStatus(event.message);
           if (event.type === "thinking") {
@@ -134,6 +139,9 @@ export function Studio() {
     setTopic(item.topic);
     setMode(item.mode);
     setLevel(item.level);
+    setBanca(item.pack.banca ?? "generic");
+    setConcurso(item.pack.concurso ?? "");
+    setEdital(item.pack.edital ?? "");
     setTab(defaultTab(item.pack));
     setError(null);
     setStatus("Sessão restaurada do histórico.");
@@ -176,10 +184,16 @@ export function Studio() {
             topic={topic}
             mode={mode}
             level={level}
+            banca={banca}
+            concurso={concurso}
+            edital={edital}
             busy={busy}
             onTopic={setTopic}
             onMode={setMode}
             onLevel={setLevel}
+            onBanca={setBanca}
+            onConcurso={setConcurso}
+            onEdital={setEdital}
             onGenerate={generate}
             onCancel={cancel}
           />
@@ -216,7 +230,15 @@ export function Studio() {
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-4">
                 <div>
                   <p className="text-xs uppercase tracking-[0.18em] text-muted">
-                    Material gerado
+                    {[
+                      pack.concurso,
+                      pack.banca !== "generic"
+                        ? getExamBoard(pack.banca).label
+                        : null,
+                      "Material gerado",
+                    ]
+                      .filter(Boolean)
+                      .join(" · ")}
                   </p>
                   <h2 className="font-serif text-2xl tracking-tight">
                     {pack.topic}
@@ -282,11 +304,12 @@ function EmptyState() {
         Estúdio de estudo
       </p>
       <h2 className="mx-auto mt-3 max-w-xl font-serif text-4xl leading-tight tracking-tight">
-        Peça um assunto. O agente do Cursor monta o material na hora.
+        Peça um assunto. Informe banca e edital se quiser prova no estilo certo.
       </h2>
       <p className="mx-auto mt-4 max-w-lg text-muted">
-        Resumos para revisar, flashcards para memorizar e questões para testar.
-        Tudo gerado ao vivo, como uma conversa com o chat do Cursor.
+        Resumos alinhados ao conteúdo programático, flashcards para memorizar e
+        questões no formato da banca — Cebraspe em certo/errado, FGV com cinco
+        alternativas, e assim por diante.
       </p>
     </div>
   );

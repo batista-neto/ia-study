@@ -27,6 +27,8 @@ const studyContentSchema = {
       type: "string",
       enum: ["beginner", "intermediate", "advanced"],
     },
+    banca: { type: "string" },
+    concurso: { type: "string" },
     summary: {
       type: "object",
       properties: {
@@ -44,6 +46,7 @@ const studyContentSchema = {
           },
         },
         keyTakeaways: { type: "array", items: { type: "string" } },
+        editalTopics: { type: "array", items: { type: "string" } },
       },
       required: ["title", "overview", "sections", "keyTakeaways"],
     },
@@ -68,6 +71,10 @@ const studyContentSchema = {
           options: { type: "array", items: { type: "string" } },
           correctIndex: { type: "integer" },
           explanation: { type: "string" },
+          format: {
+            type: "string",
+            enum: ["multiple-choice", "certo-errado"],
+          },
         },
         required: ["question", "options", "correctIndex", "explanation"],
       },

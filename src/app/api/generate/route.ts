@@ -1,4 +1,5 @@
 import { generateStudyContent, isCursorConfigured } from "@/lib/cursor-agent";
+import { isExamBoardId, sanitizeEdital } from "@/lib/exam";
 import type { AgentStreamEvent, GenerateRequest, StudyLevel, StudyMode } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -20,6 +21,11 @@ function parseBody(value: unknown): GenerateRequest {
   const topic = typeof body.topic === "string" ? body.topic.trim() : "";
   const mode = body.mode as StudyMode;
   const level = body.level as StudyLevel;
+  const banca = isExamBoardId(body.banca) ? body.banca : "generic";
+  const concurso =
+    typeof body.concurso === "string" ? body.concurso.trim() : "";
+  const edital =
+    typeof body.edital === "string" ? sanitizeEdital(body.edital) : "";
   if (topic.length < 3) {
     throw new Error("Descreva o assunto com pelo menos 3 caracteres.");
   }
@@ -29,7 +35,14 @@ function parseBody(value: unknown): GenerateRequest {
   if (!levels.includes(level)) {
     throw new Error("Nível inválido.");
   }
-  return { topic, mode, level };
+  return {
+    topic,
+    mode,
+    level,
+    banca,
+    concurso: concurso || undefined,
+    edital: edital || undefined,
+  };
 }
 
 export async function POST(request: Request) {
